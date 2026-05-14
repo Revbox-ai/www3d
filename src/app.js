@@ -98,6 +98,76 @@ const gravelTex = makeCanvasTex(256, 256, (ctx, w, h) => {
 });
 gravelTex.repeat.set(4, 4);
 
+const fabricTex = makeCanvasTex(256, 256, (ctx, w, h) => {
+  ctx.fillStyle = '#c9b89a';
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(155,132,105,0.45)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < w; i += 4) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(215,195,168,0.45)';
+  for (let j = 0; j < h; j += 4) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(w, j); ctx.stroke(); }
+});
+fabricTex.repeat.set(3, 3);
+
+const carpetTex = makeCanvasTex(512, 512, (ctx, w, h) => {
+  const cx = w / 2, cy = h / 2;
+  ctx.fillStyle = '#7a3830';
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = '#c4694a'; ctx.lineWidth = 14;
+  ctx.strokeRect(14, 14, w - 28, h - 28);
+  ctx.lineWidth = 4;
+  ctx.strokeRect(26, 26, w - 52, h - 52);
+  const step = 56;
+  ctx.strokeStyle = 'rgba(194,105,74,0.45)'; ctx.lineWidth = 1.5;
+  for (let i = -step * 2; i < w + step * 2; i += step) {
+    for (let j = -step * 2; j < h + step * 2; j += step) {
+      ctx.beginPath();
+      ctx.moveTo(i + step / 2, j); ctx.lineTo(i + step, j + step / 2);
+      ctx.lineTo(i + step / 2, j + step); ctx.lineTo(i, j + step / 2);
+      ctx.closePath(); ctx.stroke();
+    }
+  }
+  ctx.strokeStyle = '#e8906a';
+  ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(cx, cy, 78, 0, Math.PI * 2); ctx.stroke();
+  ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, 52, 0, Math.PI * 2); ctx.stroke();
+  [0, Math.PI / 2, Math.PI, 3 * Math.PI / 2].forEach((a) => {
+    ctx.beginPath();
+    ctx.ellipse(cx + Math.cos(a) * 38, cy + Math.sin(a) * 38, 18, 10, a, 0, Math.PI * 2);
+    ctx.stroke();
+  });
+  ctx.beginPath(); ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+  ctx.fillStyle = '#c4694a'; ctx.fill();
+});
+
+const quiltTex = makeCanvasTex(256, 256, (ctx, w, h) => {
+  ctx.fillStyle = '#f0ece4';
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(200,188,172,0.7)'; ctx.lineWidth = 1;
+  for (let i = 0; i < w; i += 28) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
+  for (let j = 0; j < h; j += 28) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(w, j); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(175,162,145,0.55)';
+  for (let i = 14; i < w; i += 28) {
+    for (let j = 14; j < h; j += 28) {
+      ctx.beginPath(); ctx.moveTo(i - 5, j); ctx.lineTo(i, j - 5); ctx.lineTo(i + 5, j); ctx.lineTo(i, j + 5); ctx.closePath(); ctx.stroke();
+    }
+  }
+});
+quiltTex.repeat.set(2, 2);
+
+const paintingTex = makeCanvasTex(256, 192, (ctx, w, h) => {
+  const g = ctx.createLinearGradient(0, 0, w, h);
+  g.addColorStop(0, '#2e4a6e'); g.addColorStop(0.35, '#4a6e2e');
+  g.addColorStop(0.65, '#6e3030'); g.addColorStop(1, '#2e5a5a');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  for (let i = 0; i < 14; i++) {
+    const gx = Math.random() * w, gy = Math.random() * h;
+    const gr = ctx.createRadialGradient(gx, gy, 0, gx, gy, 28 + Math.random() * 44);
+    const hue = Math.floor(Math.random() * 360);
+    gr.addColorStop(0, `hsla(${hue},52%,62%,0.38)`); gr.addColorStop(1, 'transparent');
+    ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h);
+  }
+});
+
 // ─── Materials ───────────────────────────────────────────────────────────────
 
 const materials = {
@@ -114,6 +184,12 @@ const materials = {
   bark:      new THREE.MeshStandardMaterial({ color: 0x4a2e0d, roughness: 0.96 }),
   foliage:   new THREE.MeshStandardMaterial({ color: 0x2e4e1c, roughness: 0.88 }),
   foliage2:  new THREE.MeshStandardMaterial({ color: 0x1e3212, roughness: 0.90 }),
+  fabric:    new THREE.MeshStandardMaterial({ map: fabricTex, color: 0xd4c4a8, roughness: 0.85 }),
+  carpet:    new THREE.MeshStandardMaterial({ map: carpetTex, roughness: 0.92 }),
+  quilt:     new THREE.MeshStandardMaterial({ map: quiltTex, roughness: 0.80 }),
+  pillow:    new THREE.MeshStandardMaterial({ color: 0xf5f0e8, roughness: 0.75 }),
+  lampShade: new THREE.MeshStandardMaterial({ color: 0xf0e8d0, transparent: true, opacity: 0.88, roughness: 0.70 }),
+  painting:  new THREE.MeshStandardMaterial({ map: paintingTex, roughness: 0.60 }),
 };
 
 const house = new THREE.Group();
@@ -198,6 +274,26 @@ function addBush(x, z, r = 0.52) {
 
 function addColumn(x, z) {
   addBox({ name: 'column', pos: [x, 1.65, z], scale: [0.22, 3.3, 0.22], mat: materials.wall, parent: house });
+}
+
+// ─── Entrance sitting area (left of door) ────────────────────────────────────
+
+function buildEntranceArea() {
+  // Dywan — terracotta z geometrycznym wzorem
+  addBox({ name: 'entrance carpet', pos: [-4.02, 0.012, -6.2], scale: [2.4, 0.05, 3.2], mat: materials.carpet, outline: false });
+
+  // Kanapa 3-częściowa: siedzisko + oparcie + 2 podłokietniki
+  addBox({ name: 'sofa seat',      pos: [-4.40, 0.38, -6.20], scale: [0.72, 0.44, 2.10], mat: materials.fabric });
+  addBox({ name: 'sofa back',      pos: [-4.76, 0.82, -6.20], scale: [0.12, 0.52, 2.10], mat: materials.fabric });
+  addBox({ name: 'sofa arm L',     pos: [-4.40, 0.64, -7.22], scale: [0.72, 0.28, 0.12], mat: materials.fabric });
+  addBox({ name: 'sofa arm R',     pos: [-4.40, 0.64, -5.18], scale: [0.72, 0.28, 0.12], mat: materials.fabric });
+
+  // Stolik kawowy — blat + 4 nogi
+  addBox({ name: 'ct top',  pos: [-3.22, 0.42, -6.20], scale: [0.72, 0.06, 1.40], mat: materials.floor, outline: false });
+  addBox({ name: 'ct leg1', pos: [-2.94, 0.20, -5.57], scale: [0.06, 0.38, 0.06], mat: materials.clayDark, outline: false });
+  addBox({ name: 'ct leg2', pos: [-3.50, 0.20, -5.57], scale: [0.06, 0.38, 0.06], mat: materials.clayDark, outline: false });
+  addBox({ name: 'ct leg3', pos: [-2.94, 0.20, -6.83], scale: [0.06, 0.38, 0.06], mat: materials.clayDark, outline: false });
+  addBox({ name: 'ct leg4', pos: [-3.50, 0.20, -6.83], scale: [0.06, 0.38, 0.06], mat: materials.clayDark, outline: false });
 }
 
 // ─── Ground & landscape ───────────────────────────────────────────────────────
@@ -296,9 +392,28 @@ function buildHouse() {
   addBox({ name: 'media wall',        pos: [-4.72, 1.0,   1.1],  scale: [0.22, 1.50, 2.40], mat: materials.clayDark });
   addBox({ name: 'kitchen island',    pos: [ 3.28, 0.52, -0.35], scale: [2.1,  0.92, 0.92], mat: materials.clayDark });
   addBox({ name: 'kitchen wall units',pos: [ 4.74, 1.1,   0.95], scale: [0.38, 2.00, 2.35], mat: materials.clayDark });
-  addBox({ name: 'bed',               pos: [-3.45, 0.42,  6.85], scale: [2.35, 0.58, 2.15], mat: materials.clayDark });
-  addBox({ name: 'wardrobe',          pos: [-4.75, 1.25,  5.85], scale: [0.36, 2.30, 1.70], mat: materials.clayDark });
-  addBox({ name: 'bath block',        pos: [ 3.35, 0.56,  6.65], scale: [1.45, 0.72, 1.70], mat: materials.clayDark });
+  // Bed — frame, headboard, mattress, duvet, pillows
+  addBox({ name: 'bed frame',       pos: [-3.45, 0.28,  6.85], scale: [2.40, 0.44, 2.20], mat: materials.clayDark });
+  addBox({ name: 'headboard',       pos: [-3.45, 0.96,  5.88], scale: [2.40, 0.90, 0.10], mat: materials.clayDark });
+  addBox({ name: 'mattress',        pos: [-3.45, 0.62,  6.85], scale: [2.22, 0.20, 2.05], mat: materials.quilt });
+  addBox({ name: 'duvet',           pos: [-3.45, 0.84,  7.12], scale: [2.20, 0.15, 1.65], mat: materials.quilt });
+  addBox({ name: 'pillow L',        pos: [-4.12, 0.88,  6.12], scale: [0.86, 0.14, 0.50], mat: materials.pillow });
+  addBox({ name: 'pillow R',        pos: [-2.80, 0.88,  6.12], scale: [0.86, 0.14, 0.50], mat: materials.pillow });
+  addBox({ name: 'wardrobe',        pos: [-4.75, 1.25,  5.85], scale: [0.36, 2.30, 1.70], mat: materials.clayDark });
+  // Nightstand + table lamp (right side, more space)
+  addBox({ name: 'nightstand',      pos: [-2.06, 0.36,  6.12], scale: [0.42, 0.44, 0.42], mat: materials.clayDark });
+  addBox({ name: 'lamp base',       pos: [-2.06, 0.60,  6.12], scale: [0.09, 0.09, 0.09], mat: materials.clayDark });
+  addBox({ name: 'lamp stem',       pos: [-2.06, 0.72,  6.12], scale: [0.03, 0.22, 0.03], mat: materials.clayDark, outline: false });
+  addBox({ name: 'lamp shade',      pos: [-2.06, 0.88,  6.12], scale: [0.22, 0.14, 0.22], mat: materials.lampShade, outline: false });
+  addBox({ name: 'lamp glow',       pos: [-2.06, 0.82,  6.12], scale: [0.12, 0.08, 0.12], mat: materials.warm, outline: false });
+  // Wall sconce on left bedroom wall
+  addBox({ name: 'sconce arm',      pos: [-4.92, 2.26,  7.15], scale: [0.10, 0.08, 0.22], mat: materials.clayDark });
+  addBox({ name: 'sconce shade',    pos: [-4.82, 2.26,  7.15], scale: [0.10, 0.18, 0.14], mat: materials.lampShade, outline: false });
+  addBox({ name: 'sconce glow',     pos: [-4.78, 2.26,  7.15], scale: [0.06, 0.10, 0.08], mat: materials.warm, outline: false });
+  // Painting on bedroom divider wall (inner face z ≈ 5.31)
+  addBox({ name: 'painting frame',  pos: [-3.35, 1.88,  5.31], scale: [1.28, 0.98, 0.06], mat: materials.clayDark, outline: false });
+  addBox({ name: 'painting canvas', pos: [-3.35, 1.88,  5.35], scale: [1.14, 0.84, 0.03], mat: materials.painting, outline: false });
+  addBox({ name: 'bath block',      pos: [ 3.35, 0.56,  6.65], scale: [1.45, 0.72, 1.70], mat: materials.clayDark });
   addBox({ name: 'stair mass',        pos: [ 0.22, 0.42,  4.45], scale: [1.15, 0.70, 2.90], mat: materials.clayDark });
 
   // Warm line lights
@@ -465,6 +580,7 @@ dots.forEach((d) => d.addEventListener('click', () => goToStep(Number(d.dataset.
 
 buildGround();
 buildHouse();
+buildEntranceArea();
 buildCameraPathGuide();
 setupLights();
 updateCamera();
