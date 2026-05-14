@@ -1,10 +1,12 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
+  height: 100%;
+  overflow: hidden;   /* body nigdy się nie scrolluje */
   background: #000;
-  overflow-x: hidden;
 }
 
+/* Film — pełny ekran, nieruchomy */
 #tour {
   position: fixed;
   inset: 0;
@@ -14,24 +16,35 @@ html, body {
   z-index: 0;
 }
 
-/* Tall invisible div that drives the scrollbar */
+/* Przezroczysty scroller nad filmem — przechwytuje kółko myszy / dotyk */
+#scroller {
+  position: fixed;
+  inset: 0;
+  overflow-y: scroll;
+  z-index: 1;
+  /* ukryj scrollbar — scroll działa, pasek niewidoczny */
+  scrollbar-width: none;
+}
+#scroller::-webkit-scrollbar { display: none; }
+
+/* Wysoki "ciężarek" wewnątrz scrollera — wysokość ustawia JS */
 #scroll-driver {
   min-height: 100vh;
-  pointer-events: none;
 }
 
-/* Thin progress bar at bottom */
+/* Cienka linia postępu na dole */
 #progress-line {
   position: fixed;
   bottom: 0;
   left: 0;
   height: 3px;
   width: 0%;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.7);
   z-index: 10;
+  transition: width 80ms linear;
 }
 
-/* Scroll hint */
+/* Podpowiedź scroll */
 #hint {
   position: fixed;
   bottom: 28px;
@@ -51,10 +64,9 @@ html, body {
   transition: opacity 0.5s ease;
   white-space: nowrap;
 }
-
 #hint.hidden { opacity: 0; }
 
-/* Loading screen */
+/* Ekran ładowania */
 #loader {
   position: fixed;
   inset: 0;
@@ -67,11 +79,7 @@ html, body {
   gap: 18px;
   transition: opacity 0.6s ease;
 }
-
-#loader.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
+#loader.hidden { opacity: 0; pointer-events: none; }
 
 #loader p {
   color: rgba(255, 255, 255, 0.55);
@@ -88,7 +96,6 @@ html, body {
   border-radius: 999px;
   overflow: hidden;
 }
-
 #loader-fill {
   height: 100%;
   width: 0%;

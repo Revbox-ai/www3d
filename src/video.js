@@ -1,34 +1,34 @@
-const video       = document.getElementById('tour');
+const video        = document.getElementById('tour');
+const scroller     = document.getElementById('scroller');
 const scrollDriver = document.getElementById('scroll-driver');
 const progressLine = document.getElementById('progress-line');
 const hint         = document.getElementById('hint');
 const loader       = document.getElementById('loader');
 const loaderFill   = document.getElementById('loader-fill');
 
-// 300px scroll = 1 second of video — gives smooth, comfortable control
-const PX_PER_SECOND = 300;
+const PX_PER_SECOND = 300; // px scrollu na sekundę filmu
 
-// ─── Set page height once we know video duration ──────────────────────────────
+// ─── Ustaw wysokość scrollera po załadowaniu metadanych ───────────────────────
 video.addEventListener('loadedmetadata', () => {
   scrollDriver.style.height = `calc(100vh + ${Math.ceil(video.duration * PX_PER_SECOND)}px)`;
 });
 
-// ─── Loading progress ─────────────────────────────────────────────────────────
+// ─── Pasek ładowania ──────────────────────────────────────────────────────────
 function updateLoader() {
   if (!video.duration) return;
-  const end = video.buffered.length > 0 ? video.buffered.end(video.buffered.length - 1) : 0;
-  const pct  = Math.min(100, (end / video.duration) * 100);
+  const buffered = video.buffered.length > 0 ? video.buffered.end(video.buffered.length - 1) : 0;
+  const pct = Math.min(100, (buffered / video.duration) * 100);
   loaderFill.style.width = `${pct}%`;
   if (pct >= 99) loader.classList.add('hidden');
 }
 
-video.addEventListener('progress',      updateLoader);
+video.addEventListener('progress', updateLoader);
 video.addEventListener('canplaythrough', () => {
   loaderFill.style.width = '100%';
   setTimeout(() => loader.classList.add('hidden'), 350);
 });
 
-// ─── Scroll → video time ──────────────────────────────────────────────────────
+// ─── Scroll → czas wideo ──────────────────────────────────────────────────────
 let targetTime = 0;
 let ticking    = false;
 let hintHidden = false;
@@ -39,17 +39,16 @@ function seekVideo() {
   ticking = false;
 }
 
-window.addEventListener('scroll', () => {
-  // Hide hint on first real scroll
-  if (!hintHidden && window.scrollY > 40) {
+scroller.addEventListener('scroll', () => {
+  if (!hintHidden && scroller.scrollTop > 40) {
     hint.classList.add('hidden');
     hintHidden = true;
   }
 
-  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  const maxScroll = scroller.scrollHeight - scroller.clientHeight;
   if (maxScroll <= 0 || !video.duration) return;
 
-  targetTime = Math.max(0, Math.min((window.scrollY / maxScroll) * video.duration, video.duration));
+  targetTime = Math.max(0, Math.min((scroller.scrollTop / maxScroll) * video.duration, video.duration));
 
   if (!ticking) {
     ticking = true;

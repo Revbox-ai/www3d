@@ -4,16 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spacer po mieszkaniu</title>
-  <link rel="stylesheet" href="./src/styles.css" />
+  <link rel="stylesheet" href="./src/styles.css?v=2" />
 </head>
 <body>
 
+  <!-- Film w tle -->
   <video id="tour" preload="auto" muted playsinline>
     <source src="./teaser.mp4" type="video/mp4" />
   </video>
 
-  <div id="progress-line"></div>
+  <!-- Przezroczysty div przechwytujący scroll — na wierzchu, bez tła -->
+  <div id="scroller">
+    <div id="scroll-driver"></div>
+  </div>
 
+  <!-- UI nad scrollerem -->
+  <div id="progress-line"></div>
   <div id="hint">↕ Scrolluj, aby poruszać się po mieszkaniu</div>
 
   <div id="loader">
@@ -21,8 +27,6 @@
     <p>Ładowanie spaceru…</p>
   </div>
 
-  <div id="scroll-driver"></div>
-
-  <script type="module" src="./src/video.js"></script>
+  <script type="module" src="./src/video.js?v=2"></script>
 </body>
 </html>
