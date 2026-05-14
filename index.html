@@ -3,82 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Scroll House MVP - Developer</title>
-  <meta name="description" content="MVP strony dla developera: dom 3D, który przybliża się i prowadzi użytkownika przez pomieszczenia podczas scrollowania." />
+  <title>Spacer po mieszkaniu</title>
   <link rel="stylesheet" href="./src/styles.css" />
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "/vendor/three.module.js"
-      }
-    }
-  </script>
 </head>
 <body>
-  <main id="app">
-    <canvas id="scene"></canvas>
 
-    <div class="noise"></div>
+  <video id="tour" preload="auto" muted playsinline>
+    <source src="./teaser.mp4" type="video/mp4" />
+  </video>
 
-    <header class="topbar" aria-label="Górna nawigacja">
-      <a class="brand" href="#start" aria-label="Powrót na początek">
-        <span class="brand-mark"></span>
-        <span>FALL LINE HOUSE</span>
-      </a>
-      <nav class="nav">
-        <a href="#start">Start</a>
-        <a href="#rooms">Przejście 3D</a>
-        <a href="#contact">Kontakt</a>
-      </nav>
-    </header>
+  <div id="progress-line"></div>
 
-    <aside class="hud" aria-label="Informacje o aktualnym etapie">
-      <p class="eyebrow">Interaktywny spacer 3D</p>
-      <h1 id="stage-title">Widok inwestycji</h1>
-      <p id="stage-copy">Scrolluj, aby zbliżyć się do budynku i wejść do środka.</p>
-      <div class="progress-wrap" aria-hidden="true">
-        <div class="progress-track">
-          <div id="progress-bar" class="progress-bar"></div>
-        </div>
-        <div id="progress-percent" class="progress-percent">0%</div>
-      </div>
-    </aside>
+  <div id="hint">↕ Scrolluj, aby poruszać się po mieszkaniu</div>
 
-    <div class="room-map" aria-label="Mapa przejścia">
-      <div class="map-title">Trasa</div>
-      <button data-step="0" class="map-dot active" type="button">Bryła</button>
-      <button data-step="1" class="map-dot" type="button">Wejście</button>
-      <button data-step="2" class="map-dot" type="button">Salon</button>
-      <button data-step="3" class="map-dot" type="button">Kuchnia</button>
-      <button data-step="4" class="map-dot" type="button">Hall</button>
-      <button data-step="5" class="map-dot" type="button">Sypialnia</button>
-    </div>
+  <div id="loader">
+    <div id="loader-track"><div id="loader-fill"></div></div>
+    <p>Ładowanie spaceru…</p>
+  </div>
 
-    <section id="start" class="scroll-panel panel-start">
-      <div>
-        <span class="kicker">MVP bez tekstur</span>
-        <h2>Dom jako biała makieta 3D</h2>
-        <p>Model jest zbudowany z prostych brył, więc można szybko podmienić go na docelowy model GLB/GLTF od architekta.</p>
-      </div>
-    </section>
+  <div id="scroll-driver"></div>
 
-    <section id="rooms" class="scroll-panel panel-empty" aria-hidden="true"></section>
-    <section class="scroll-panel panel-empty" aria-hidden="true"></section>
-    <section class="scroll-panel panel-empty" aria-hidden="true"></section>
-    <section class="scroll-panel panel-empty" aria-hidden="true"></section>
-
-    <section id="contact" class="scroll-panel panel-contact">
-      <div>
-        <span class="kicker">Kolejny etap</span>
-        <h2>Tu można dodać formularz, rzuty, ceny i CTA</h2>
-        <p>Wersja produkcyjna może używać modelu z Blendera, tekstur PBR, hotspotów, planu mieszkań i animacji kamery zsynchronizowanej z treścią.</p>
-        <a class="button" href="mailto:kontakt@example.com">Zapytaj o inwestycję</a>
-      </div>
-    </section>
-  </main>
-
-  <div class="mobile-hint">Przesuń palcem, aby wejść do środka</div>
-
-  <script type="module" src="./src/app.js"></script>
+  <script type="module" src="./src/video.js"></script>
 </body>
 </html>
